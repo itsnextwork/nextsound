@@ -72,8 +72,8 @@ export const MOCK_LATEST_HITS: ITrack[] = [
   },
   // Sabrina Carpenter - 2024 Summer Hit
   {
-    id: "2plbrEY59IikOBgBGLjaoe",
-    spotify_id: "2plbrEY59IikOBgBGLjaoe",
+    id: "4jLfJ9sR0nUro2s3nNrdx5",
+    spotify_id: "2qSkIjg1o9h3YT9RAgYN75",
     poster_path: "https://i.scdn.co/image/ab67616d0000b273255ec9ddd8af81fd9aba2ced",
     backdrop_path: "https://i.scdn.co/image/ab67616d0000b273255ec9ddd8af81fd9aba2ced",
     original_title: "Espresso",
@@ -85,7 +85,7 @@ export const MOCK_LATEST_HITS: ITrack[] = [
     duration: 175000,
     preview_url: null,
     external_urls: {
-      spotify: "https://open.spotify.com/track/2plbrEY59IikOBgBGLjaoe"
+      spotify: "https://open.spotify.com/track/2qSkIjg1o9h3YT9RAgYN75"
     },
     popularity: 94,
     genre: "Pop",
@@ -551,5 +551,6 @@ const mockMusicData = {
   MOCK_POPULAR_TRACKS,
   MOCK_HERO_TRACKS
 };
+
 
 export default mockMusicData;
