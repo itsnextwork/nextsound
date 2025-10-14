@@ -5,6 +5,7 @@ import { ITrack } from '@/types';
 import { useTheme } from '@/context/themeContext';
 import { useGlobalContext } from '@/context/globalContext';
 import { getMockData, shouldUseMockData } from '@/data/mockMusicData';
+import { performEnhancedSearch } from '@/utils/searchAlgorithm';
 
 export interface SearchResult {
   id: string;
@@ -49,143 +50,6 @@ export const useCommandPalette = ({
   const [mockSearchResults, setMockSearchResults] = useState<Array<{ track: ITrack; isExactMatch: boolean }>>([]);
   const [isMockSearchLoading, setIsMockSearchLoading] = useState(false);
 
-  // Enhanced search algorithm for Command Palette
-  const performEnhancedSearch = (tracks: ITrack[], searchQuery: string): Array<{ track: ITrack; isExactMatch: boolean }> => {
-    if (!searchQuery || !tracks.length) return [];
-
-    const query = searchQuery.toLowerCase().trim();
-    const searchTerms = query.split(/\s+/).filter(term => term.length > 0);
-
-    // Check if search is year-based
-    const yearMatch = query.match(/\b(19|20)\d{2}\b/);
-    const searchYear = yearMatch ? parseInt(yearMatch[0]) : null;
-
-    const scoredResults: Array<{ track: ITrack; score: number; isExactMatch: boolean }> = [];
-
-    tracks.forEach(track => {
-      let score = 0;
-      let isExactMatch = false;
-      const trackText = {
-        name: track.name?.toLowerCase() || '',
-        title: track.title?.toLowerCase() || '',
-        original_title: track.original_title?.toLowerCase() || '',
-        artist: track.artist?.toLowerCase() || '',
-        album: track.album?.toLowerCase() || '',
-        overview: track.overview?.toLowerCase() || '',
-        genre: track.genre?.toLowerCase() || '',
-        year: track.year?.toString() || ''
-      };
-
-      // Check for exact matches
-      if (trackText.name === query || trackText.title === query || trackText.original_title === query) {
-        isExactMatch = true;
-        score += 100;
-      } else if (trackText.artist === query) {
-        isExactMatch = true;
-        score += 90;
-      } else if (trackText.album === query) {
-        isExactMatch = true;
-        score += 80;
-      } else if (trackText.genre === query) {
-        isExactMatch = true;
-        score += 70;
-      }
-
-      // Continue with partial match bonuses if not an exact match
-      if (!isExactMatch) {
-        // Partial match bonuses (lower priority for recommendations)
-        if (trackText.name === query || trackText.title === query) score += 100;
-        if (trackText.artist === query) score += 90;
-        if (trackText.album === query) score += 80;
-        if (trackText.genre === query) score += 70;
-      }
-
-      // Year-based search
-      if (searchYear && track.year === searchYear) {
-        score += 85;
-      }
-
-      // Genre-based search with flexible matching
-      const genreAliases: Record<string, string[]> = {
-        'pop': ['pop', 'alternative pop', 'dance pop', 'synthpop'],
-        'rock': ['rock', 'pop rock', 'alternative rock', 'classic rock'],
-        'hip hop': ['hip hop', 'hip-hop', 'rap', 'latin trap'],
-        'r&b': ['r&b', 'rnb', 'soul'],
-        'electronic': ['electronic', 'dance', 'edm', 'synthpop'],
-        'country': ['country'],
-        'indie': ['indie', 'indie folk', 'indie rock'],
-        'folk': ['folk', 'indie folk'],
-        'punk': ['punk', 'pop punk'],
-        'garage': ['garage', 'uk garage'],
-        'k-pop': ['k-pop', 'kpop'],
-        'latin': ['latin', 'latin trap']
-      };
-
-      // Check for genre matches
-      for (const [searchGenre, aliases] of Object.entries(genreAliases)) {
-        if (query.includes(searchGenre)) {
-          if (aliases.some(alias => trackText.genre.includes(alias))) {
-            score += 75;
-            break;
-          }
-        }
-      }
-
-      // Multi-term search scoring (only for non-exact matches)
-      if (!isExactMatch) {
-        searchTerms.forEach(term => {
-          // Title/Name matches
-          if (trackText.name.includes(term) || trackText.title.includes(term)) score += 50;
-          if (trackText.original_title.includes(term)) score += 45;
-
-          // Artist matches
-          if (trackText.artist.includes(term)) score += 40;
-
-          // Album matches
-          if (trackText.album.includes(term)) score += 30;
-
-          // Genre matches
-          if (trackText.genre.includes(term)) score += 35;
-
-          // Overview matches
-          if (trackText.overview.includes(term)) score += 15;
-
-          // Year matches
-          if (trackText.year.includes(term)) score += 25;
-        });
-
-        // Partial word matching bonus
-        searchTerms.forEach(term => {
-          if (term.length >= 3) {
-            if (trackText.name.includes(term) || trackText.artist.includes(term)) {
-              score += 20;
-            }
-          }
-        });
-
-        // Popularity boost for better user experience
-        if (track.popularity && track.popularity > 85) score += 10;
-        if (track.popularity && track.popularity > 90) score += 5;
-      }
-
-      if (score > 0) {
-        scoredResults.push({ track, score, isExactMatch });
-      }
-    });
-
-    // Sort exact matches first, then by score (descending)
-    return scoredResults
-      .sort((a, b) => {
-        // Exact matches first
-        if (a.isExactMatch && !b.isExactMatch) return -1;
-        if (!a.isExactMatch && b.isExactMatch) return 1;
-        // Then by score
-        return b.score - a.score;
-      })
-      .slice(0, 8) // Limit to 8 results for Command Palette
-      .map(item => ({ track: item.track, isExactMatch: item.isExactMatch }));
-  };
-
   // Load recent searches from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('nextsound_search_history');
@@ -216,9 +80,10 @@ export const useCommandPalette = ({
           const popularTracks = getMockData('tracks', 'popular');
           const allTracks = [...latestHits.results, ...popularTracks.results];
 
-          // Perform enhanced search
-          const results = performEnhancedSearch(allTracks, searchQuery);
-          setMockSearchResults(results);
+          // Perform enhanced search using shared utility (limit to 8 results for Command Palette)
+          const results = performEnhancedSearch(allTracks, searchQuery, 8);
+          // Map SearchResult[] to { track, isExactMatch }
+          setMockSearchResults(results.map(result => ({ track: result.track, isExactMatch: result.isExactMatch })));
         } catch (error) {
           console.error('Mock search error:', error);
           setMockSearchResults([]);
