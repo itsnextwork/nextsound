@@ -12,16 +12,7 @@
     "build": "tsc && vite build",
     "build:server": "echo 'Server is plain JS, no build needed'",
     "preview": "vite preview",
-    "start": "concurrently \"npm run server\" \"npm run preview\" --names \"server,client\" --prefix-colors \"blue,green\"",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "test:music": "./test-music-quality.sh",
-    "test:visual": "playwright test test/visual-regression.spec.ts",
-    "test:e2e": "playwright test",
-    "validate:deploy": "npm run test && npm run build && echo '✅ Ready for deployment'",
-    "quality:check": "npm run test:coverage && echo 'Quality validation complete'"
+    "start": "concurrently \"npm run server\" \"npm run preview\" --names \"server,client\" --prefix-colors \"blue,green\""
   },
   "dependencies": {
     "@ctrl/react-adsense": "^1.8.0",
@@ -55,10 +46,6 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
-    "@playwright/test": "^1.55.0",
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/lodash.throttle": "^4.1.9",
@@ -70,7 +57,6 @@
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "@vitejs/plugin-react": "^5.0.3",
-    "@vitest/coverage-v8": "^3.2.4",
     "axios": "^1.12.2",
     "concurrently": "^9.2.1",
     "cors": "^2.8.5",
@@ -81,19 +67,11 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "express": "^5.1.0",
     "globals": "^16.4.0",
-    "jsdom": "^27.0.0",
-    "msw": "^2.11.2",
     "nodemon": "^3.1.10",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^4.9.5",
     "vite": "^7.1.6",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^3.2.4"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
+    "vite-plugin-eslint": "^1.8.1"
   }
 }

@@ -54,7 +54,6 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
   onToggleShuffle,
   onToggleRepeat,
   onToggleFavorite,
-  onClose: _onClose,
   isMinimized = false,
   onToggleMinimize,
   className
@@ -80,22 +79,6 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const _handleProgressChange = (value: number) => {
-    setLocalProgress(value);
-    if (!isDragging) {
-      onSeek?.(value);
-    }
-  };
-
-  const _handleProgressStart = () => {
-    setIsDragging(true);
-  };
-
-  const _handleProgressEnd = () => {
-    setIsDragging(false);
-    onSeek?.(localProgress);
   };
 
   const handleVolumeClick = () => {
