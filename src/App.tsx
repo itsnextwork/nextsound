@@ -21,19 +21,11 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const App = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
-  // Debug: Log when Command Palette state changes
-  useEffect(() => {
-    console.log('Command Palette state changed:', isCommandPaletteOpen);
-  }, [isCommandPaletteOpen]);
-
   // Global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('Key pressed:', { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey });
-
       // Cmd+K or Ctrl+K to open command palette
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        console.log('Command palette shortcut triggered');
         e.preventDefault();
         setIsCommandPaletteOpen(true);
       }
@@ -65,9 +57,8 @@ const App = () => {
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
-        onItemSelect={(item) => {
-          console.log('Selected item:', item);
-          // Handle item selection - navigation only (no audio player)
+        onItemSelect={() => {
+          // Item selection handled by CommandPalette component
         }}
       />
 

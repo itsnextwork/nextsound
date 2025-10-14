@@ -184,7 +184,7 @@ class APIError extends Error {
 
 // Data transformation helpers
 const transformSpotifyTrack = (track: SpotifyTrack): ITrack => {
-  const result = {
+  return {
     id: track.id,
     spotify_id: track.id,
     poster_path: track.album.images[0]?.url || '',
@@ -201,16 +201,6 @@ const transformSpotifyTrack = (track: SpotifyTrack): ITrack => {
     popularity: track.popularity,
     // Add empty legacy properties for compatibility
   };
-  
-  // Debug validation
-  if (!result.poster_path) {
-    console.warn('⚠️ Track missing poster_path:', track.name, 'by', track.artists[0]?.name);
-  }
-  if (!result.artist) {
-    console.warn('⚠️ Track missing artist:', track.name);
-  }
-  
-  return result;
 };
 
 const transformSpotifyAlbum = (album: SpotifyAlbum): IAlbum => ({
@@ -457,41 +447,14 @@ export const spotifyApi = createApi({
       providesTags: (result, error, { query, type, limit }) => [
         { type: 'Search', id: `${type}-${query}-${limit}` }
       ],
-      transformResponse: (response: SpotifySearchResponse, _meta, { type, query, limit }) => {
-        console.group('🔍 Spotify Search Transformation Debug');
-        console.log('📊 Search Parameters:', { type, query, limit });
-        console.log('📦 Raw Response:', response);
-        
+      transformResponse: (response: SpotifySearchResponse, _meta, { type }) => {
         let results: ITrack[] = [];
-        
+
         try {
           if (type === 'track' && response.tracks) {
-            console.log('🎵 Processing tracks:', response.tracks.items.length, 'items');
-            console.log('🎵 Track items sample:', response.tracks.items.slice(0, 2));
-            
-            results = response.tracks.items.map((track, index) => {
-              console.log(`🎵 Transforming track ${index + 1}:`, {
-                id: track.id,
-                name: track.name,
-                artist: track.artists[0]?.name,
-                album: track.album.name,
-                hasImage: !!track.album.images[0]?.url
-              });
-              return transformSpotifyTrack(track);
-            });
-            
-            console.log('✅ Transformed tracks successfully:', results.length, 'items');
+            results = response.tracks.items.map((track) => transformSpotifyTrack(track));
           } else if (type === 'album' && response.albums) {
-            console.log('💿 Processing albums:', response.albums.items.length, 'items');
-            console.log('💿 Album items sample:', response.albums.items.slice(0, 2));
-            
-            results = response.albums.items.map((album, index) => {
-              console.log(`💿 Transforming album ${index + 1}:`, {
-                id: album.id,
-                name: album.name,
-                artist: album.artists[0]?.name,
-                hasImage: !!album.images[0]?.url
-              });
+            results = response.albums.items.map((album) => {
               return {
                 ...transformSpotifyAlbum(album),
                 // Convert IAlbum to ITrack format for compatibility
@@ -499,17 +462,8 @@ export const spotifyApi = createApi({
                 duration: 0
               };
             });
-            
-            console.log('✅ Transformed albums successfully:', results.length, 'items');
           } else if (type === 'artist' && response.artists) {
-            console.log('🎤 Processing artists:', response.artists.items.length, 'items');
-            console.log('🎤 Artist items sample:', response.artists.items.slice(0, 2));
-            
-            results = response.artists.items.map((artist, index) => {
-              console.log(`🎤 Transforming artist ${index + 1}:`, {
-                id: artist.id,
-                name: artist.name
-              });
+            results = response.artists.items.map((artist) => {
               return {
                 ...transformSpotifyArtist(artist),
                 artist: artist.name,
@@ -517,29 +471,12 @@ export const spotifyApi = createApi({
                 title: artist.name,
               };
             });
-            
-            console.log('✅ Transformed artists successfully:', results.length, 'items');
-          } else {
-            console.warn('⚠️ No matching data found:', { type, hasData: !!response[type as keyof SpotifySearchResponse] });
           }
-          
-          console.log('🏁 Final transformation result:', { 
-            totalItems: results.length,
-            firstItem: results[0] || null,
-            hasValidImages: results.filter(r => r.poster_path).length
-          });
-          
         } catch (error) {
-          console.error('❌ Transformation error:', error);
-          console.error('❌ Error context:', { response, type, query });
+          console.error('Spotify API transformation error:', error);
         }
-        
-        // No popularity filtering at SpotifyAPI level - handled by MusicAPI
-        let filteredResults = results;
-        console.log('📊 SpotifyAPI returning raw results without popularity filtering:', results.length, 'tracks');
-        
-        console.groupEnd();
-        return { results: filteredResults };
+
+        return { results };
       },
     }),
 

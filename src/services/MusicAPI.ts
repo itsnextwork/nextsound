@@ -34,8 +34,6 @@ const performEnhancedSearch = (tracks: ITrack[], searchQuery: string): ITrack[] 
   const query = searchQuery.toLowerCase().trim();
   const searchTerms = query.split(/\s+/).filter(term => term.length > 0);
 
-  console.log(`🔍 Enhanced search: "${query}" -> [${searchTerms.join(', ')}]`);
-
   // Check if search is year-based
   const yearMatch = query.match(/\b(19|20)\d{2}\b/);
   const searchYear = yearMatch ? parseInt(yearMatch[0]) : null;
@@ -64,7 +62,6 @@ const performEnhancedSearch = (tracks: ITrack[], searchQuery: string): ITrack[] 
     // Year-based search
     if (searchYear && track.year === searchYear) {
       score += 85;
-      console.log(`🗓️ Year match: ${track.name} (${track.year}) +85`);
     }
 
     // Genre-based search with flexible matching
@@ -88,18 +85,12 @@ const performEnhancedSearch = (tracks: ITrack[], searchQuery: string): ITrack[] 
       if (query.includes(searchGenre)) {
         if (aliases.some(alias => trackText.genre.includes(alias))) {
           score += 75;
-          console.log(`🎵 Genre match: ${track.name} (${track.genre}) for "${searchGenre}" +75`);
           break;
         }
       }
     }
 
     // Multi-term search scoring
-    const _allFields = [
-      trackText.name, trackText.title, trackText.original_title,
-      trackText.artist, trackText.album, trackText.overview,
-      trackText.genre, trackText.year
-    ].join(' ');
 
     searchTerms.forEach(term => {
       // Title/Name matches
@@ -136,7 +127,6 @@ const performEnhancedSearch = (tracks: ITrack[], searchQuery: string): ITrack[] 
     if (track.popularity && track.popularity > 90) score += 5;
 
     if (score > 0) {
-      console.log(`📊 "${track.name}" by ${track.artist}: score = ${score}`);
       scoredResults.push({ track, score });
     }
   });
@@ -145,11 +135,6 @@ const performEnhancedSearch = (tracks: ITrack[], searchQuery: string): ITrack[] 
   const sortedResults = scoredResults
     .sort((a, b) => b.score - a.score)
     .map(item => item.track);
-
-  console.log(`🎯 Final results: ${sortedResults.length} tracks`);
-  if (sortedResults.length > 0) {
-    console.log(`🏆 Top result: "${sortedResults[0].name}" by ${sortedResults[0].artist}`);
-  }
 
   return sortedResults;
 };
@@ -173,15 +158,8 @@ export const useGetTracksQuery = (
   // Check if we should use mock data
   const useMockData = shouldUseMockData();
 
-  // Debug logging
-  console.group(`🔧 MusicAPI useGetShowsQuery Debug`);
-  console.log('📊 Query Arguments:', { category, type, searchQuery, showSimilarTracks, skip });
-  console.log('🎭 Mock Data Mode:', useMockData);
-  console.groupEnd();
-
   // Early return with mock data if no API available
   if (useMockData && !searchQuery && !showSimilarTracks) {
-    console.log(`🎭 Using mock data for ${category}-${type}`);
     const mockData = getMockData(category || 'tracks', type || 'popular');
     return {
       data: mockData,
@@ -196,8 +174,6 @@ export const useGetTracksQuery = (
   if (searchQuery) {
     // In mock mode, return filtered mock data for search
     if (useMockData) {
-      console.log(`🎭 Enhanced mock search for: "${searchQuery}"`);
-
       // Get comprehensive mock data from all sources
       const latestHits = getMockData('tracks', 'latest');
       const popularTracks = getMockData('tracks', 'popular');
@@ -206,7 +182,6 @@ export const useGetTracksQuery = (
       // Enhanced search algorithm
       const searchResults = performEnhancedSearch(allTracks, searchQuery);
 
-      console.log(`🎭 Search results: ${searchResults.length} tracks found for "${searchQuery}"`);
       return {
         data: { results: searchResults },
         isLoading: false,
@@ -235,7 +210,6 @@ export const useGetTracksQuery = (
   if (showSimilarTracks) {
     // In mock mode, return a subset of popular tracks
     if (useMockData) {
-      console.log(`🎭 Mock similar tracks`);
       const mockData = getMockData('tracks', 'popular');
       return {
         data: { results: mockData.results.slice(0, 10) },
@@ -282,7 +256,7 @@ export const useGetTracksQuery = (
   // Deduplication helper to ensure unique content across sections
   const deduplicateResults = (data: any) => {
     if (!data?.results) return data;
-    
+
     const seen = new Set();
     const uniqueResults = data.results.filter((track: any) => {
       const key = `${track.name?.toLowerCase()}-${track.artist?.toLowerCase()}`;
@@ -290,8 +264,7 @@ export const useGetTracksQuery = (
       seen.add(key);
       return true;
     });
-    
-    console.log(`🔧 Deduplication: ${data.results.length} → ${uniqueResults.length} tracks`);
+
     return { ...data, results: uniqueResults };
   };
 
@@ -300,46 +273,22 @@ export const useGetTracksQuery = (
     return 75; // Always use 75+ minimum for high-quality mainstream hits
   };
 
-  const getContentFilter = (type: string) => {
+  const getContentFilter = (_type: string) => {
     // Default: exclude ALL ambient content for mainstream sections (Latest Hits)
     return (track: any) => {
       const name = track.name?.toLowerCase() || '';
       const isAmbient = /sleep|white noise|rain|nature sounds|meditation|relax|ambient|loopable|asmr|calm|peaceful|gentle|soothing/i.test(name);
-      if (isAmbient) {
-        console.log(`🚫 Filtering out ambient track: "${track.name}" for ${type} section`);
-      }
       return !isAmbient;
     };
   };
 
-  const validateSearchResults = (results: any[], type: string): void => {
-    const minPopularity = getPopularityThreshold();
-    const lowQualityCount = results.filter(r => (r.popularity || 0) < minPopularity).length;
-
-    if (lowQualityCount > results.length * 0.2) {  // Max 20% low quality
-      console.warn(`⚠️ Quality issue in ${type}: ${lowQualityCount}/${results.length} tracks below ${minPopularity} popularity`);
-    }
-
-    // Check artist diversity
-    const artistCounts = new Map();
-    results.forEach(track => {
-      const artist = track.artist?.toLowerCase();
-      artistCounts.set(artist, (artistCounts.get(artist) || 0) + 1);
-    });
-
-    const duplicateArtists = Array.from(artistCounts.entries()).filter(([_, count]) => count > 1);
-    if (duplicateArtists.length > 0) {
-      console.warn(`⚠️ Artist repetition in ${type}:`, duplicateArtists.map(([artist, count]) => `${artist}(${count})`));
-    }
-
-    console.log(`✅ ${type} validation: ${results.length} tracks, avg popularity: ${Math.round(results.reduce((sum, r) => sum + (r.popularity || 0), 0) / results.length)}`);
+  const validateSearchResults = (_results: any[], _type: string): void => {
+    // Validation logic removed for production - can be re-enabled for debugging
   };
 
   // Advanced filtering with consistent popularity thresholds and strict artist diversity
   const advancedFilterResults = (data: any, type: string) => {
     if (!data?.results) return data;
-
-    console.log(`🎯 Advanced filtering: ${data.results.length} input tracks for ${type}`);
 
     // Step 1: Basic deduplication
     const deduplicated = deduplicateResults(data);
@@ -363,15 +312,13 @@ export const useGetTracksQuery = (
       // Check artist diversity (still strict - max 1 per artist)
       const artistCount = artistCounts.get(artist) || 0;
       if (artistCount >= 1) {
-        console.log(`🚫 Skipping track by ${track.artist} (already has ${artistCount} tracks)`);
         return false;
       }
 
       // Check album diversity - less aggressive, allow 2 tracks per album to ensure enough results
       if (album) {
         const albumCount = albumCounts.get(album) || 0;
-        if (albumCount >= 2) { // Changed from 1 to 2
-          console.log(`🚫 Skipping track from "${track.album}" (already has ${albumCount} tracks from this album)`);
+        if (albumCount >= 2) {
           return false;
         }
         albumCounts.set(album, albumCount + 1);
@@ -385,11 +332,6 @@ export const useGetTracksQuery = (
     const popularityThreshold = getPopularityThreshold();
     const qualityFiltered = diverseResults.filter((track: any) => (track.popularity || 0) >= popularityThreshold);
 
-    console.log(`🎯 Advanced filtering complete: ${data.results.length} → ${qualityFiltered.length} tracks`);
-    console.log(`📊 Artist diversity: ${artistCounts.size} unique artists`);
-    console.log(`💿 Album diversity: ${albumCounts.size} unique albums (prevents soundtrack flooding)`);
-    console.log(`📈 Popularity threshold: ${popularityThreshold}+ (avg: ${Math.round(qualityFiltered.reduce((sum: number, t: any) => sum + (t.popularity || 0), 0) / qualityFiltered.length)})`);
-
     // Validate results
     validateSearchResults(qualityFiltered, type);
 
@@ -399,17 +341,10 @@ export const useGetTracksQuery = (
   // Handle different categories using simple 2024/2025 top tracks strategy
   const playlistId = getPlaylistIdForSection(category || '', type || '');
 
-  console.log(`🔍 Checking content strategy for ${category}-${type}: strategy = ${playlistId}`);
-
   if (playlistId === 'ADVANCED_SEARCH' || playlistId) {
-    console.log(`🎵 Using simple 2024/2025 top tracks strategy for ${category}-${type}`);
-
     // Simple two-query strategy for 2024 and 2025 top tracks
     const query2024 = 'year:2024';
     const query2025 = 'year:2025';
-
-    console.log(`🔍 Query 1: "${query2024}" with limit=50 (market=US hardcoded in SpotifyAPI)`);
-    console.log(`🔍 Query 2: "${query2025}" with limit=50 (market=US hardcoded in SpotifyAPI)`);
 
     const query1Result = spotifyApi.useSearchMusicQuery({
       query: query2024,
@@ -436,15 +371,11 @@ export const useGetTracksQuery = (
       // Combine results from both 2024 and 2025 queries
       const combinedTracks: any[] = [];
 
-      allResults.forEach((result, index) => {
+      allResults.forEach((result) => {
         if (!skip && result.data?.results) {
-          const queryYear = index === 0 ? '2024' : '2025';
-          console.log(`📊 ${queryYear} Query: ${result.data.results.length} tracks`);
           combinedTracks.push(...result.data.results);
         }
       });
-
-      console.log(`🚀 Combined 2024/2025 Results: ${combinedTracks.length} total tracks from 2 year-based queries`);
 
       if (combinedTracks.length > 0) {
         // Apply enhanced filtering to combined results
@@ -516,7 +447,6 @@ export const useGetTrackQuery = (
 
   // In mock mode, try to find track by ID in mock data
   if (useMockData) {
-    console.log(`🎭 Mock track lookup for ID: ${stringId}`);
     const mockTrack = getMockTrackById(stringId);
     if (mockTrack) {
       return {

@@ -35,7 +35,6 @@ interface UseCommandPaletteProps {
 }
 
 export const useCommandPalette = ({
-  audioPlayer: _audioPlayer,
   onItemSelect,
   onClose
 }: UseCommandPaletteProps) => {
@@ -207,7 +206,6 @@ export const useCommandPalette = ({
     const searchQuery = query.trim();
 
     if (useMockData && searchQuery) {
-      console.log(`🎭 Command Palette mock search for: "${searchQuery}"`);
       setIsMockSearchLoading(true);
 
       // Simulate search delay for better UX
@@ -221,7 +219,6 @@ export const useCommandPalette = ({
           // Perform enhanced search
           const results = performEnhancedSearch(allTracks, searchQuery);
           setMockSearchResults(results);
-          console.log(`🎭 Command Palette search results: ${results.length} tracks found`);
         } catch (error) {
           console.error('Mock search error:', error);
           setMockSearchResults([]);
@@ -298,7 +295,6 @@ export const useCommandPalette = ({
       category: 'help',
       action: () => {
         // TODO: Implement shortcuts modal
-        console.log('Show shortcuts modal');
       },
       keywords: ['help', 'shortcuts', 'keys', 'commands'],
       shortcut: '⌘+?',
