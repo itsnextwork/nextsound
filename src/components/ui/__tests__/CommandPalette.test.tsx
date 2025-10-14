@@ -7,17 +7,18 @@ import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
 
 import { CommandPalette } from '../CommandPalette';
-import { spotifyApi } from '../../../services/SpotifyAPI';
+import { spotifyApi, useSearchMusicQuery } from '../../../services/SpotifyAPI';
 import ThemeProvider from '../../../context/themeContext';
 import GlobalProvider from '../../../context/globalContext';
 
 // Mock the APIs
 vi.mock('../../../services/SpotifyAPI', () => ({
   spotifyApi: {
-    useSearchMusicQuery: vi.fn(),
     reducer: () => ({}), // Return empty object as initial state
     middleware: [],
+    reducerPath: 'spotifyApi',
   },
+  useSearchMusicQuery: vi.fn(),
 }));
 
 // Mock localStorage
@@ -84,7 +85,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -123,7 +124,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -152,7 +153,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -193,7 +194,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -224,7 +225,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -254,7 +255,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -286,7 +287,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -317,7 +318,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -348,7 +349,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -380,7 +381,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -425,7 +426,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -471,7 +472,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -522,7 +523,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -559,7 +560,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -611,7 +612,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -638,7 +639,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -666,7 +667,7 @@ describe('CommandPalette', () => {
         error: { status: 500, message: 'Search failed' },
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -697,7 +698,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -723,7 +724,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -764,7 +765,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       const Wrapper = createWrapper();
       render(
@@ -805,7 +806,7 @@ describe('CommandPalette', () => {
         error: undefined,
       };
 
-      vi.mocked(spotifyApi.useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
+      vi.mocked(useSearchMusicQuery).mockReturnValue(mockSearchResponse as any);
 
       expect(() => {
         const Wrapper = createWrapper();
