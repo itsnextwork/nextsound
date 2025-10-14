@@ -23,13 +23,6 @@ const Home = () => {
     page: 1,
   });
 
-  // Debug logging
-  console.log('Home component - heroData:', heroData);
-  console.log('Home component - data:', data);
-  console.log('Home component - isLoading:', isLoading);
-  console.log('Home component - isError:', isError);
-  console.log('Home component - error:', error);
-
   if (isLoading || heroLoading) {
     return <Loader />;
   }
@@ -39,7 +32,6 @@ const Home = () => {
   }
 
   const popularTracks = heroData?.results || data?.results || [];
-  console.log('Home component - popularTracks:', popularTracks);
 
   return (
     <>
