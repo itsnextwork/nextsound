@@ -10,7 +10,8 @@ import {
   FiPlay,
   FiSettings,
   FiHelpCircle,
-  FiNavigation
+  FiNavigation,
+  FiTrash2
 } from 'react-icons/fi';
 import { cn } from '@/utils/helper';
 import { useCommandPalette, SearchResult } from '@/hooks/useCommandPalette';
@@ -41,7 +42,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     recentItems,
     isLoading,
     error,
-    handleItemSelect
+    handleItemSelect,
+    clearHistory
   } = useCommandPalette({ audioPlayer, onItemSelect, onClose });
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -188,9 +190,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <div className="p-4">
               {recentItems.length > 0 ? (
                 <>
-                  <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-                    Recent
-                  </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      Recent
+                    </h3>
+                    <Button
+                      onPress={clearHistory}
+                      className="flex items-center gap-1.5 px-2 py-1 text-xs text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors duration-200"
+                    >
+                      <FiTrash2 className="w-3 h-3" />
+                      Clear
+                    </Button>
+                  </div>
                   <div className="space-y-1">
                     {recentItems.map((item, _index) => {
                       const Icon = getItemIcon(item.type);
