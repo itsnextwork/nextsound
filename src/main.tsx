@@ -25,7 +25,7 @@ if (import.meta.env.DEV && import.meta.env.VITE_USE_MSW === 'true') {
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Provider store={store}>
           <ThemeProvider>
             <GlobalContextProvider>
