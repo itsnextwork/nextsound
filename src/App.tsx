@@ -11,6 +11,7 @@ import {
   DemoModeBadge,
 } from "@/common";
 import { CommandPalette } from "@/components/ui/CommandPalette";
+import { Toaster } from "@/components/ui/Toaster";
 
 import "react-loading-skeleton/dist/skeleton.css";
 import "swiper/css";
@@ -61,6 +62,9 @@ const App = () => {
           // Item selection handled by CommandPalette component
         }}
       />
+
+      {/* Toast notifications */}
+      <Toaster />
 
       <Footer />
     </>

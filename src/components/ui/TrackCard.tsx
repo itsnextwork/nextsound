@@ -4,10 +4,13 @@ import { Card, CardContent } from './card';
 import {
   FaPlay,
   FaPause,
-  FaClock
+  FaClock,
+  FaShare,
+  FaCheck
 } from 'react-icons/fa';
 import { ITrack } from '@/types';
-import { getImageUrl, cn } from '@/utils';
+import { getImageUrl, cn, copyToClipboard } from '@/utils';
+import { addToast } from './use-toast';
 
 interface TrackCardProps {
   track: ITrack;
@@ -16,6 +19,9 @@ interface TrackCardProps {
   onPlay?: (track: ITrack) => void;
   variant?: 'compact' | 'detailed' | 'featured';
   className?: string;
+  selectable?: boolean;
+  isSelected?: boolean;
+  onSelect?: (track: ITrack, selected: boolean) => void;
 }
 
 export const TrackCard: React.FC<TrackCardProps> = ({
@@ -24,10 +30,15 @@ export const TrackCard: React.FC<TrackCardProps> = ({
   isPlaying = false,
   onPlay,
   variant = 'detailed',
-  className
+  className,
+  selectable = false,
+  isSelected = false,
+  onSelect
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
 
   const { poster_path, original_title: title, name, artist, album, duration } = track;
   const displayTitle = title || name || 'Unknown Track';
@@ -39,6 +50,72 @@ export const TrackCard: React.FC<TrackCardProps> = ({
     console.log('🎯 TrackCard: Play button clicked for track:', track.name || track.original_title);
     console.log('🎯 TrackCard: onPlay function available:', !!onPlay);
     onPlay?.(track);
+  };
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🎯 TrackCard: Checkbox clicked for track:', track.name || track.original_title, 'New state:', !isSelected);
+    onSelect?.(track, !isSelected);
+  };
+
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const spotifyUrl = track.external_urls?.spotify;
+    const trackName = track.name || track.original_title || 'Unknown Track';
+    const artistName = track.artist || 'Unknown Artist';
+
+    // Check if URL is available
+    if (!spotifyUrl) {
+      addToast({
+        title: 'No link available',
+        description: 'This track does not have a Spotify link',
+        variant: 'error',
+      });
+      return;
+    }
+
+    // Set loading state
+    setIsCopying(true);
+
+    try {
+      // Copy to clipboard
+      const success = await copyToClipboard(spotifyUrl);
+
+      if (success) {
+        // Show success state
+        setIsCopied(true);
+
+        // Show success toast
+        addToast({
+          title: 'Link copied!',
+          description: `${trackName} by ${artistName}`,
+          variant: 'success',
+        });
+
+        // Reset after 2 seconds
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+      } else {
+        addToast({
+          title: 'Failed to copy link',
+          description: 'Please try again',
+          variant: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      addToast({
+        title: 'Failed to copy link',
+        description: 'Please try again',
+        variant: 'error',
+      });
+    } finally {
+      setIsCopying(false);
+    }
   };
 
 
@@ -54,7 +131,7 @@ export const TrackCard: React.FC<TrackCardProps> = ({
   const imageHeight = variant === 'compact' ? 160 : variant === 'featured' ? 240 : 200;
 
   return (
-    <Card 
+    <Card
       className={cn(
         "group relative transition-all duration-300 ease-out overflow-hidden",
         "hover:scale-[1.03] hover:-translate-y-2 cursor-pointer",
@@ -63,6 +140,7 @@ export const TrackCard: React.FC<TrackCardProps> = ({
         "rounded-xl p-4",
         cardHeight,
         "w-[180px]", // Slightly wider for better proportions
+        isSelected && "ring-2 ring-accent-orange ring-offset-2 dark:ring-offset-gray-900",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -99,6 +177,53 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             "absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 rounded-lg",
             isHovered ? "opacity-100" : "opacity-0"
           )} />
+
+          {/* Checkbox for multi-select - top left */}
+          {selectable && (
+            <div className={cn(
+              "absolute top-2 left-2 transition-all duration-300 z-10",
+              (isHovered || isSelected) ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+            )}>
+              <button
+                onClick={handleCheckboxClick}
+                className={cn(
+                  "w-6 h-6 rounded-md border-2 transition-all duration-200 flex items-center justify-center",
+                  isSelected
+                    ? "bg-accent-orange border-accent-orange"
+                    : "bg-white/90 dark:bg-gray-800/90 border-white dark:border-gray-600 hover:border-accent-orange dark:hover:border-accent-orange"
+                )}
+              >
+                {isSelected && <FaCheck className="w-3 h-3 text-white" />}
+              </button>
+            </div>
+          )}
+
+          {/* Share button - top right */}
+          <div className={cn(
+            "absolute top-2 right-2 transition-all duration-300 z-10",
+            isHovered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+          )}>
+            <Button
+              onClick={handleShareClick}
+              variant="ghost"
+              size="icon"
+              disabled={isCopying}
+              className={cn(
+                "w-9 h-9 rounded-full shadow-lg transition-all duration-200",
+                isCopied
+                  ? "bg-success-green hover:bg-success-green text-white"
+                  : "bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200",
+                "hover:scale-110",
+                isCopying && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              {isCopied ? (
+                <FaCheck className="w-4 h-4" />
+              ) : (
+                <FaShare className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
 
           {/* Play button overlay */}
           <div className={cn(

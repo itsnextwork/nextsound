@@ -1,5 +1,7 @@
 import { FC, useState } from "react";
 import { TrackCard } from "@/components/ui/TrackCard";
+import { MultiShareBar } from "@/components/ui/MultiShareBar";
+import { useMultiShare } from "@/hooks/useMultiShare";
 import { ITrack } from "@/types";
 
 interface MusicGridProps {
@@ -10,6 +12,7 @@ interface MusicGridProps {
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
   hasMoreContent?: boolean;
+  enableMultiShare?: boolean;
 }
 
 const MusicGrid: FC<MusicGridProps> = ({
@@ -19,13 +22,47 @@ const MusicGrid: FC<MusicGridProps> = ({
   loadMoreCount = 18, // Load 3 more rows each time
   onLoadMore,
   isLoadingMore = false,
-  hasMoreContent = false
+  hasMoreContent = false,
+  enableMultiShare = false
 }) => {
   const [visibleCount, setVisibleCount] = useState(initialDisplayCount);
+
+  // Use custom hook for multi-share functionality
+  const {
+    selectedTracks,
+    selectTrack,
+    selectAll,
+    shareSelected,
+    clearSelection,
+    isTrackSelected,
+    isLoading,
+    hasReachedLimit,
+    maxLimit
+  } = useMultiShare({ maxSelectionLimit: 10 });
 
   const handlePlay = (track: ITrack) => {
     console.log('🎵 Track clicked (audio player removed):', track.name || track.title);
     // Audio player functionality removed - this is now just a visual music browser
+  };
+
+  const handleSelect = (track: ITrack, selected: boolean) => {
+    console.log('🎯 MusicGrid: Track selection changed:', track.name || track.original_title, 'Selected:', selected);
+    selectTrack(track, selected);
+  };
+
+  const handleShare = async () => {
+    console.log('🎯 MusicGrid: Share clicked with', selectedTracks.length, 'tracks:', selectedTracks.map(t => t.name || t.original_title));
+    await shareSelected();
+  };
+
+  const handleCancel = () => {
+    console.log('🎯 MusicGrid: Cancel clicked, clearing', selectedTracks.length, 'selected tracks');
+    clearSelection();
+  };
+
+  const handleSelectAll = () => {
+    console.log('🎯 MusicGrid: Select All clicked with', displayedTracks.length, 'displayed tracks');
+    selectAll(displayedTracks);
   };
 
   const handleLoadMoreClick = () => {
@@ -56,10 +93,27 @@ const MusicGrid: FC<MusicGridProps> = ({
               isPlaying={false}
               onPlay={handlePlay}
               variant="detailed"
+              selectable={enableMultiShare}
+              isSelected={isTrackSelected(track.id)}
+              onSelect={handleSelect}
             />
           </div>
         ))}
       </div>
+
+      {/* Multi-share action bar */}
+      {enableMultiShare && (
+        <MultiShareBar
+          selectedTracks={selectedTracks}
+          onShare={handleShare}
+          onCancel={handleCancel}
+          onSelectAll={handleSelectAll}
+          onClearAll={handleCancel}
+          isLoading={isLoading}
+          hasReachedLimit={hasReachedLimit}
+          maxLimit={maxLimit}
+        />
+      )}
 
       {/* Load More Button */}
       {showLoadMoreButton && (

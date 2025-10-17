@@ -7,10 +7,13 @@ import {
   FaClock,
   FaMusic,
   FaCalendarAlt,
-  FaUser
+  FaUser,
+  FaShare,
+  FaCheck
 } from 'react-icons/fa';
 import { ITrack, IAlbum } from '@/types';
-import { getImageUrl, cn } from '@/utils';
+import { getImageUrl, cn, copyToClipboard } from '@/utils';
+import { addToast } from './use-toast';
 
 interface AlbumCardProps {
   album: IAlbum; // Using IAlbum for proper album properties
@@ -33,6 +36,8 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
 
   const { poster_path, original_title: title, name, artists } = album;
   const displayTitle = title || name || 'Unknown Album';
@@ -48,6 +53,64 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     onPlay?.(album);
+  };
+
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const spotifyUrl = album.external_urls?.spotify;
+    const albumName = album.name || album.original_title || 'Unknown Album';
+
+    // Check if URL is available
+    if (!spotifyUrl) {
+      addToast({
+        title: 'No link available',
+        description: 'This album does not have a Spotify link',
+        variant: 'error',
+      });
+      return;
+    }
+
+    // Set loading state
+    setIsCopying(true);
+
+    try {
+      // Copy to clipboard
+      const success = await copyToClipboard(spotifyUrl);
+
+      if (success) {
+        // Show success state
+        setIsCopied(true);
+
+        // Show success toast
+        addToast({
+          title: 'Link copied!',
+          description: `${albumName} by ${artistName}`,
+          variant: 'success',
+        });
+
+        // Reset after 2 seconds
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+      } else {
+        addToast({
+          title: 'Failed to copy link',
+          description: 'Please try again',
+          variant: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      addToast({
+        title: 'Failed to copy link',
+        description: 'Please try again',
+        variant: 'error',
+      });
+    } finally {
+      setIsCopying(false);
+    }
   };
 
 
@@ -111,6 +174,33 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
             "absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 rounded-lg",
             isHovered ? "opacity-100" : "opacity-0"
           )} />
+
+          {/* Share button - top right */}
+          <div className={cn(
+            "absolute top-2 right-2 transition-all duration-300 z-10",
+            isHovered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+          )}>
+            <Button
+              onClick={handleShareClick}
+              variant="ghost"
+              size="icon"
+              disabled={isCopying}
+              className={cn(
+                "w-9 h-9 rounded-full shadow-lg transition-all duration-200",
+                isCopied
+                  ? "bg-success-green hover:bg-success-green text-white"
+                  : "bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200",
+                "hover:scale-110",
+                isCopying && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              {isCopied ? (
+                <FaCheck className="w-4 h-4" />
+              ) : (
+                <FaShare className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
 
           {/* Play button overlay */}
           <div className={cn(

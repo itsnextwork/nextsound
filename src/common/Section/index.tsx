@@ -92,6 +92,7 @@ const Section: FC<SectionProps> = ({
                   category={category}
                   initialDisplayCount={18}
                   loadMoreCount={6}
+                  enableMultiShare={true}
                 />
               ) : (
                 <MusicSlides
