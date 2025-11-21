@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from './card';
 import {
-  FaClock
+  FaClock,
+  FaHeart,
+  FaRegHeart
 } from 'react-icons/fa';
 import { ITrack } from '@/types';
 import { getImageUrl, cn } from '@/utils';
@@ -25,6 +27,7 @@ export const TrackCard: React.FC<TrackCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   const { poster_path, original_title: title, name, artist, album, duration } = track;
   const displayTitle = title || name || 'Unknown Track';
@@ -80,6 +83,27 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             onLoad={() => setImageLoaded(true)}
             loading="lazy"
           />
+
+          {/* Like button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsLiked(!isLiked);
+            }}
+            className={cn(
+              "absolute top-2 right-2 z-10 p-2 rounded-full transition-all duration-200",
+              "bg-black/50 backdrop-blur-sm hover:bg-black/70",
+              "text-white hover:scale-110 active:scale-95",
+              "focus:outline-none focus:ring-2 focus:ring-white/50"
+            )}
+            aria-label={isLiked ? "Unlike track" : "Like track"}
+          >
+            {isLiked ? (
+              <FaHeart className="w-4 h-4 text-red-500" />
+            ) : (
+              <FaRegHeart className="w-4 h-4" />
+            )}
+          </button>
 
           {/* Gradient overlay on hover */}
           <div className={cn(

@@ -10,7 +10,6 @@ import Error from "./Error";
 import ErrorBoundary, { APIErrorBoundary } from "./ErrorBoundary";
 import ThemeMenu from "./ThemeMenu";
 import Section from "./Section";
-import DemoModeBadge from "./DemoModeBadge";
 
 export {
   Footer,
@@ -30,5 +29,4 @@ export {
   APIErrorBoundary,
   ThemeMenu,
   Section,
-  DemoModeBadge,
 };

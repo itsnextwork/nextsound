@@ -1,9 +1,3 @@
-<div align="center" >
-  <br/>
-  <br/>
-  <img src="/src/assets/svg/nextsound.svg" alt="NextSound logo" width="80" height="auto" />
-  <h1>NextSound</h1>
-  <br/>
 
   <p >
 A music discovery app built with React and TypeScript. <br/> Browse tracks, albums, and artists using Spotify's API.
@@ -171,5 +165,10 @@ npm run preview
 
 <div align="center">
   <p>Built with ❤️ for music lovers everywhere</p>
-  <p>Discover your next favorite track with NextSound</p>
+
 </div>
+
+
+hi you are cool - and I love you!
+
+Nice lol 
