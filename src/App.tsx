@@ -8,7 +8,6 @@ import {
   ScrollToTop,
   Loader,
   ErrorBoundary,
-  DemoModeBadge,
 } from "@/common";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 
@@ -39,7 +38,6 @@ const App = () => {
     <>
       <SideBar />
       <Header onOpenSearch={() => setIsCommandPaletteOpen(true)} />
-      <DemoModeBadge />
       <main className="transition-all duration-300 lg:pb-14 md:pb-4 sm:pb-2 xs:pb-1 pb-0 bg-white dark:bg-deep-dark min-h-screen">
         <ScrollToTop>
           <ErrorBoundary>

@@ -171,5 +171,8 @@ npm run preview
 
 <div align="center">
   <p>Built with ❤️ for music lovers everywhere</p>
-  <p>Discover your next favorite track with NextSound</p>
+
 </div>
+
+
+hi you are cool - and I love you!
