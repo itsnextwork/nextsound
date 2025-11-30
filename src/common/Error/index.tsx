@@ -18,7 +18,7 @@ const Error = ({ className = "h-screen", error, onRetry, showRetry = false }: Er
     >
       <div className="flex flex-col items-center gap-4 text-center">
         <div className="flex flex-row gap-2 items-end">
-          <BiError className="text-[#ff0000] text-[32px]" />
+          <BiError className="text-[#d94040] text-[32px]" />
           <p className="font-roboto dark:text-gray-300 text-gray-900">{error}</p>
         </div>
         {showRetry && onRetry && (
