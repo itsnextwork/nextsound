@@ -76,12 +76,21 @@ export const QueueProvider: React.FC<QueueProviderProps> = ({ children }) => {
       const newQueue = prev.filter((_, i) => i !== index);
       
       // Adjust currentIndex if needed
-      if (index <= currentIndex && currentIndex > 0) {
+      if (index < currentIndex) {
+        // Track before current was removed - decrement index
         setCurrentIndex(prev => prev - 1);
-      } else if (index < currentIndex) {
-        // No change needed
-      } else if (currentIndex >= newQueue.length) {
+      } else if (index === currentIndex) {
+        // Currently playing track was removed - keep same index (next track moves into position)
+        // No change needed to currentIndex
+      } else if (index > currentIndex) {
+        // Track after current was removed - no change needed
+      }
+      
+      // Clamp currentIndex if it's out of bounds after removal
+      if (currentIndex >= newQueue.length && newQueue.length > 0) {
         setCurrentIndex(newQueue.length - 1);
+      } else if (newQueue.length === 0) {
+        setCurrentIndex(-1);
       }
       
       return newQueue;
