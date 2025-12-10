@@ -343,7 +343,7 @@ export const useAudioPlayer = (queueFunctions?: QueueFunctions) => {
     }
 
     setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
-  }, [state.isPlaying, state.currentTrack, state.progress, queueFunctions]);
+  }, [state.isPlaying, state.currentTrack, state.progress]);
 
   const skipNext = useCallback(() => {
     if (queueFunctions) {
