@@ -3,8 +3,11 @@ import { Card, CardContent } from './card';
 import {
   FaClock
 } from 'react-icons/fa';
+import { FiPlus } from 'react-icons/fi';
 import { ITrack } from '@/types';
 import { getImageUrl, cn } from '@/utils';
+import { useQueueContext } from '@/context/queueContext';
+import { Button } from './button';
 
 interface TrackCardProps {
   track: ITrack;
@@ -25,6 +28,7 @@ export const TrackCard: React.FC<TrackCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { addToQueue, openQueuePanel } = useQueueContext();
 
   const { poster_path, original_title: title, name, artist, album, duration } = track;
   const displayTitle = title || name || 'Unknown Track';
@@ -36,6 +40,11 @@ export const TrackCard: React.FC<TrackCardProps> = ({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const handleAddToQueue = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToQueue(track);
+    openQueuePanel();
+  };
 
   const cardHeight = variant === 'compact' ? 'h-52' : variant === 'featured' ? 'h-84' : 'h-80';
   const imageHeight = variant === 'compact' ? 160 : variant === 'featured' ? 240 : 200;
@@ -86,6 +95,27 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             "absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 rounded-lg",
             isHovered ? "opacity-100" : "opacity-0"
           )} />
+
+          {/* Add to Queue button */}
+          <div className={cn(
+            "absolute inset-0 flex items-center justify-center transition-opacity duration-300 rounded-lg",
+            isHovered ? "opacity-100" : "opacity-0"
+          )}>
+            <Button
+              variant="default"
+              size="icon"
+              onClick={handleAddToQueue}
+              className={cn(
+                "rounded-full shadow-lg transition-transform duration-200",
+                "bg-blue-600 hover:bg-blue-700 text-white",
+                "hover:scale-110 active:scale-95",
+                "w-10 h-10"
+              )}
+              aria-label="Add to queue"
+            >
+              <FiPlus className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Track information */}

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { ITrack } from '@/types';
+import { useQueueContext } from './queueContext';
 
 interface AudioPlayerContextType {
   currentTrack: ITrack | null;
@@ -30,7 +31,17 @@ interface AudioPlayerProviderProps {
 }
 
 export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ children }) => {
-  const audioPlayer = useAudioPlayer();
+  // Use queue context (must be available since QueueProvider wraps this)
+  const queue = useQueueContext();
+  const queueFunctions = {
+    getNextTrack: queue.getNextTrack,
+    getPreviousTrack: queue.getPreviousTrack,
+    setCurrentIndex: queue.setCurrentIndex,
+    queue: queue.queue,
+    currentIndex: queue.currentIndex,
+  };
+
+  const audioPlayer = useAudioPlayer(queueFunctions);
 
   return (
     <AudioPlayerContext.Provider value={audioPlayer}>

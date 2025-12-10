@@ -11,6 +11,9 @@ import {
   DemoModeBadge,
 } from "@/common";
 import { CommandPalette } from "@/components/ui/CommandPalette";
+import { QueuePanel } from "@/components/ui/QueuePanel";
+import { MiniPlayer } from "@/components/ui/MiniPlayer";
+import { useAudioPlayerContext } from "@/context/audioPlayerContext";
 
 import "react-loading-skeleton/dist/skeleton.css";
 import "swiper/css";
@@ -20,6 +23,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const audioPlayer = useAudioPlayerContext();
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -60,6 +64,30 @@ const App = () => {
         onItemSelect={() => {
           // Item selection handled by CommandPalette component
         }}
+      />
+
+      {/* Queue Panel */}
+      <QueuePanel />
+
+      {/* Mini Player */}
+      <MiniPlayer
+        currentTrack={audioPlayer.currentTrack}
+        isPlaying={audioPlayer.isPlaying}
+        progress={audioPlayer.progress}
+        volume={audioPlayer.volume}
+        isShuffled={audioPlayer.isShuffled}
+        repeatMode={audioPlayer.repeatMode}
+        isMinimized={audioPlayer.isMinimized}
+        onTogglePlay={audioPlayer.togglePlay}
+        onSkipPrevious={audioPlayer.skipPrevious}
+        onSkipNext={audioPlayer.skipNext}
+        onSeek={audioPlayer.seek}
+        onVolumeChange={audioPlayer.setVolume}
+        onToggleShuffle={audioPlayer.toggleShuffle}
+        onToggleRepeat={audioPlayer.toggleRepeat}
+        onToggleFavorite={audioPlayer.toggleFavorite}
+        onToggleMinimize={audioPlayer.toggleMinimize}
+        onClose={audioPlayer.closePlayer}
       />
 
       <Footer />

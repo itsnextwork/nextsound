@@ -12,7 +12,15 @@ interface AudioPlayerState {
   isMinimized: boolean;
 }
 
-export const useAudioPlayer = () => {
+interface QueueFunctions {
+  getNextTrack: () => ITrack | null;
+  getPreviousTrack: () => ITrack | null;
+  setCurrentIndex: (index: number) => void;
+  queue: ITrack[];
+  currentIndex: number;
+}
+
+export const useAudioPlayer = (queueFunctions?: QueueFunctions) => {
   const [state, setState] = useState<AudioPlayerState>({
     currentTrack: null,
     isPlaying: false,
@@ -26,6 +34,13 @@ export const useAudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const simulationInterval = useRef<NodeJS.Timeout | null>(null);
+  const playTrackRef = useRef<((track: ITrack) => Promise<void>) | null>(null);
+  const queueFunctionsRef = useRef(queueFunctions);
+
+  // Update queue functions ref when they change
+  useEffect(() => {
+    queueFunctionsRef.current = queueFunctions;
+  }, [queueFunctions]);
 
   // Initialize audio element
   useEffect(() => {
@@ -35,6 +50,23 @@ export const useAudioPlayer = () => {
     
     const handleEnded = () => {
       setState(prev => ({ ...prev, isPlaying: false, progress: 0 }));
+      
+      // If queue is available, try to play next track
+      const queue = queueFunctionsRef.current;
+      if (queue && playTrackRef.current) {
+        const nextTrack = queue.getNextTrack();
+        if (nextTrack) {
+          // Find the index of the next track in the queue
+          const nextIndex = queue.queue.findIndex(t => t.id === nextTrack.id);
+          if (nextIndex !== -1) {
+            queue.setCurrentIndex(nextIndex);
+            // Play the next track
+            setTimeout(() => {
+              playTrackRef.current?.(nextTrack);
+            }, 100);
+          }
+        }
+      }
     };
     
     const handleLoadStart = () => {
@@ -67,7 +99,7 @@ export const useAudioPlayer = () => {
         clearInterval(simulationInterval.current);
       }
     };
-  }, []);
+  }, []); // Audio element initialization - refs are used for queue functions
 
   // Update progress
   useEffect(() => {
@@ -103,6 +135,14 @@ export const useAudioPlayer = () => {
 
   const playTrack = useCallback(async (track: ITrack) => {
     console.log('🎵 Playing track:', track.title || track.name);
+
+    // Update queue index if track is in queue
+    if (queueFunctions) {
+      const trackIndex = queueFunctions.queue.findIndex(t => t.id === track.id);
+      if (trackIndex !== -1) {
+        queueFunctions.setCurrentIndex(trackIndex);
+      }
+    }
 
     // Clear any existing simulation interval
     if (simulationInterval.current) {
@@ -258,7 +298,12 @@ export const useAudioPlayer = () => {
         }
       }, 250); // Optimized to match real audio progress updates
     }
-  }, [state.currentTrack?.id, state.volume, state.currentTrack?.preview_url, state.isPlaying]); // Added missing dependencies
+  }, [state.currentTrack?.id, state.volume, state.currentTrack?.preview_url, state.isPlaying, queueFunctions]); // Added missing dependencies
+
+  // Store playTrack ref for use in handleEnded
+  useEffect(() => {
+    playTrackRef.current = playTrack;
+  }, [playTrack]);
 
   const togglePlay = useCallback(() => {
     if (!state.currentTrack) return;
@@ -298,17 +343,29 @@ export const useAudioPlayer = () => {
     }
 
     setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
-  }, [state.isPlaying, state.currentTrack, state.progress]);
+  }, [state.isPlaying, state.currentTrack, state.progress, queueFunctions]);
 
   const skipNext = useCallback(() => {
-    console.log('Skip next - not implemented yet');
-    // TODO: Implement next track logic
-  }, []);
+    if (queueFunctions) {
+      const nextTrack = queueFunctions.getNextTrack();
+      if (nextTrack) {
+        playTrack(nextTrack);
+        return;
+      }
+    }
+    console.log('Skip next - no next track available');
+  }, [queueFunctions, playTrack]);
 
   const skipPrevious = useCallback(() => {
-    console.log('Skip previous - not implemented yet');
-    // TODO: Implement previous track logic
-  }, []);
+    if (queueFunctions) {
+      const prevTrack = queueFunctions.getPreviousTrack();
+      if (prevTrack) {
+        playTrack(prevTrack);
+        return;
+      }
+    }
+    console.log('Skip previous - no previous track available');
+  }, [queueFunctions, playTrack]);
 
   const seek = useCallback((position: number) => {
     setState(prev => ({ ...prev, progress: position }));
