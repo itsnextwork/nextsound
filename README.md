@@ -175,3 +175,5 @@ npm run preview
 </div>
 
 Learning Git step by step 🚀
+
+Practicing Pull Requests today 🙂
