@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FaHeart } from 'react-icons/fa';
 import { Card, CardContent } from './card';
 import {
   FaClock
@@ -25,6 +26,12 @@ export const TrackCard: React.FC<TrackCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLiked((prev) => !prev);
+  };
 
   const { poster_path, original_title: title, name, artist, album, duration } = track;
   const displayTitle = title || name || 'Unknown Track';
@@ -55,6 +62,30 @@ export const TrackCard: React.FC<TrackCardProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Like (heart) button */}
+      <button
+        aria-label={liked ? 'Unlike track' : 'Like track'}
+        onClick={handleLikeClick}
+        style={{
+          position: 'absolute',
+          top: 12,
+          right: 16,
+          zIndex: 2,
+          // background: 'rgba(119, 118, 118, 0.85)',
+          border: 'none',
+          borderRadius: '50%',
+          width: 36,
+          height: 36,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          cursor: 'pointer',
+          transition: 'background 0.2s',
+        }}
+      >
+        <FaHeart size={20} color={liked ? '#e11d48' : '#aaa'} style={{ transition: 'color 0.2s' }} />
+      </button>
       {/* Main Content */}
       <div className="block relative h-full">
         {/* Image Container */}

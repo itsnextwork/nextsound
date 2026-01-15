@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FaHeart } from 'react-icons/fa';
 import { Button } from './button';
 import { Card, CardContent } from './card';
 import {
@@ -33,6 +34,12 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLiked((prev) => !prev);
+  };
 
   const { poster_path, original_title: title, name, artists } = album;
   const displayTitle = title || name || 'Unknown Album';
@@ -80,6 +87,30 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Like (heart) button */}
+      <button
+        aria-label={liked ? 'Unlike album' : 'Like album'}
+        onClick={handleLikeClick}
+        style={{
+          position: 'absolute',
+          top: 12,
+          right: 16,
+          zIndex: 2,
+          background: 'rgba(255,255,255,0.85)',
+          border: 'none',
+          borderRadius: '50%',
+          width: 36,
+          height: 36,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          cursor: 'pointer',
+          transition: 'background 0.2s',
+        }}
+      >
+        <FaHeart size={20} color={liked ? '#e11d48' : '#aaa'} style={{ transition: 'color 0.2s' }} />
+      </button>
       {/* Main Content */}
       <div className="block relative">
         {/* Album Art Container */}

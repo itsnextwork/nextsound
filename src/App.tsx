@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import {
@@ -21,26 +21,14 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const App = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
-  // Global keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd+K or Ctrl+K to open command palette
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsCommandPaletteOpen(true);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // Keyboard shortcut disabled: removed Cmd/Ctrl+K listener
 
   return (
     <>
       <SideBar />
       <Header onOpenSearch={() => setIsCommandPaletteOpen(true)} />
       <DemoModeBadge />
-      <main className="transition-all duration-300 lg:pb-14 md:pb-4 sm:pb-2 xs:pb-1 pb-0 bg-white dark:bg-deep-dark min-h-screen">
+      <main className="transition-all duration-300 lg:pb-14 md:pb-4 sm:pb-2 xs:pb-1 pb-0 bg-white dark:bg-deep-dark min-h-screen pt-16 md:pt-[64px]">
         <ScrollToTop>
           <ErrorBoundary>
             <Suspense fallback={<Loader />}>

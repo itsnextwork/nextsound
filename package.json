@@ -58,6 +58,7 @@
     "@typescript-eslint/parser": "^8.44.0",
     "@vitejs/plugin-react": "^5.0.3",
     "axios": "^1.12.2",
+    "baseline-browser-mapping": "^2.9.14",
     "concurrently": "^9.2.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
