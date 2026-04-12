@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { spotifyApi } from '@/services/SpotifyAPI';
 import { musicApi } from '@/services/MusicAPI';
+import queueReducer from './queueSlice';
 
 export const store = configureStore({
   reducer: {
@@ -8,6 +9,8 @@ export const store = configureStore({
     [spotifyApi.reducerPath]: spotifyApi.reducer,
     // Unified Music API
     [musicApi.reducerPath]: musicApi.reducer,
+    // Queue management
+    queue: queueReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(

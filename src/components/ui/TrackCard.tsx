@@ -41,7 +41,7 @@ export const TrackCard: React.FC<TrackCardProps> = ({
   const imageHeight = variant === 'compact' ? 160 : variant === 'featured' ? 240 : 200;
 
   return (
-    <Card 
+    <Card
       className={cn(
         "group relative transition-all duration-300 ease-out overflow-hidden",
         "hover:scale-[1.03] hover:-translate-y-2 cursor-pointer",
@@ -52,6 +52,7 @@ export const TrackCard: React.FC<TrackCardProps> = ({
         "w-[180px]", // Slightly wider for better proportions
         className
       )}
+      onClick={() => _onPlayProp?.(track)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

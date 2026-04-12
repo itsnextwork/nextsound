@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { TrackCard } from "@/components/ui/TrackCard";
 import { ITrack } from "@/types";
+import { useAudioPlayerContext } from "@/context/audioPlayerContext";
 
 interface MusicSlidesProps {
   tracks: ITrack[];
@@ -11,9 +12,11 @@ interface MusicSlidesProps {
 }
 
 const MusicSlides: FC<MusicSlidesProps> = ({ tracks, category, useModernCards: _useModernCards = true }) => {
+  const { playTrack } = useAudioPlayerContext();
+
   const handlePlay = (track: ITrack) => {
-    console.log('🎵 Track clicked (audio player removed):', track.name || track.title);
-    // Audio player functionality removed - this is now just a visual music browser
+    console.log('🎵 Playing track:', track.name || track.title);
+    playTrack(track);
   };
 
 
